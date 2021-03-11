@@ -16,7 +16,7 @@ static const char letters[MAX_SIZE] = {
         'y', 'z'
 };
 static const int metadata_size = 60;
-static const int x_size = 17700;
+static const int x_size = 77150;
 
 
 
