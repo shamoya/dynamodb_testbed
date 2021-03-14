@@ -6,7 +6,7 @@
 #include <aws/dynamodb/model/PutItemRequest.h>
 #include <aws/dynamodb/model/PutItemResult.h>
 
-static const char* table = "Test1";
+static const char* table = "Test";
 static std::string date = "20210101";
 static const int num_indexes = 1000;
 static const int MAX_SIZE = 26;
@@ -44,7 +44,11 @@ int main()
 
         Aws::DynamoDB::Model::AttributeValue name;
         name.SetS(date);
-        pir.AddItem("X", name);
+        pir.AddItem("Date", name);
+
+        Aws::DynamoDB::Model::AttributeValue index;
+        index.SetS("-1");
+        pir.AddItem("XIndex", index);
 
         Aws::DynamoDB::Model::AttributeValue data;
         std::string metadata = random_string(metadata_size);
@@ -62,9 +66,12 @@ int main()
             pir.SetTableName(table);
 
             Aws::DynamoDB::Model::AttributeValue name;
-            std::string x_name = date + "#" + std::to_string(x);
-            name.SetS(x_name);
-            pir.AddItem("X", name);
+            name.SetS(date);
+            pir.AddItem("Date", name);
+
+            Aws::DynamoDB::Model::AttributeValue index;
+            index.SetS(std::to_string(x));
+            pir.AddItem("XIndex", index);
 
             Aws::DynamoDB::Model::AttributeValue data;
             std::string x_data =  random_string(x_size);

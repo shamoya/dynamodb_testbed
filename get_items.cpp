@@ -11,7 +11,7 @@
 #include <aws/dynamodb/model/BatchGetItemRequest.h>
 
 
-static const char* table = "Test1";
+static const char* table = "Test";
 static std::string date = "20210101";
 static const int num_indexes = 1000;
 static const int DYNAMODB_MAX_ITEMS_BATCH_GET = 100;
@@ -36,7 +36,12 @@ int main()
 
         Aws::DynamoDB::Model::AttributeValue name;
         name.SetS(date);
-        req.AddKey("X", name);
+        req.AddKey("Date", name);
+
+        Aws::DynamoDB::Model::AttributeValue index;
+        index.SetS("-1");
+        req.AddKey("XIndex", index);
+
         const Aws::DynamoDB::Model::GetItemOutcome& result = dynamoClient.GetItem(req);
 
         if (!result.IsSuccess()) {
@@ -62,9 +67,12 @@ int main()
 
             for (const auto x_index : sub_x_list) {
                 Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue> xKeys;
-                Aws::DynamoDB::Model::AttributeValue xKey;
-                xKey.SetS(date + "#" + std::to_string(x_index));
-                xKeys.emplace(Aws::String("X"), xKey);
+                Aws::DynamoDB::Model::AttributeValue name;
+                name.SetS(date);
+                xKeys.emplace(Aws::String("Date"), name);
+                Aws::DynamoDB::Model::AttributeValue index;
+                index.SetS(std::to_string(x_index));
+                xKeys.emplace(Aws::String("XIndex"), index);
                 keyAttrs.AddKeys(xKeys);
             }
 
@@ -72,23 +80,20 @@ int main()
             const Aws::DynamoDB::Model::BatchGetItemOutcome& result = dynamoClient.BatchGetItem(req);
             if (result.IsSuccess()) {
                 for(const auto& var : result.GetResult().GetResponses()) {
-                    for (const auto& item : var.second) {
-                        const Aws::Vector<Aws::String>& flds = Aws::Utils::StringUtils::Split(item.at("X").GetS(),'#');
-                        xitems[std::stoi(flds[1])] = item.at("data").GetS();
-                    }
+                    for (const auto& item : var.second)
+                        xitems[std::stoi(item.at("XIndex").GetS())] = item.at("data").GetS();
                 }
 
                 const Aws::Map<Aws::String, Aws::DynamoDB::Model::KeysAndAttributes> unprocessed = result.GetResult().GetUnprocessedKeys();
                 if (!unprocessed.empty()) {
+                    std::cout << "Unprocessed " << unprocessed.at(tableName).GetKeys().size() << std::endl;
                     for (const auto& var: unprocessed) {
-                        for (const auto& item : var.second.GetKeys()) {
-                            const Aws::Vector<Aws::String> &flds = Aws::Utils::StringUtils::Split(item.at("X").GetS(), '#');
-                            x_list.push_back(std::stoi(flds[1]));
-                        }
+                        for (const auto& item : var.second.GetKeys())
+                            x_list.push_back(std::stoi(item.at("XIndex").GetS()));
                     }
 
                     if (!current_delay) {
-                        std::vector<int> delays_ms(first_delay_ms - last_delay_ms + 1);
+                        std::vector<int> delays_ms(last_delay_ms - first_delay_ms + 1);
                         std::iota(delays_ms.begin(), delays_ms.end(), first_delay_ms);
                         std::uniform_int_distribution<> dis(0, std::distance(delays_ms.begin(), delays_ms.end()) - 1);
                         std::random_device rd;
