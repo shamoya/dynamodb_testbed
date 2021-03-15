@@ -14,7 +14,8 @@ It also prints the capacity units used if this was the case.
 The amount of data actaully returned can be calculated with: (100 - Unprocessed items) * 78KB.
 
 Usage:
-1. Create a Test table, with primary key of Date and Sort key of Index with enough capacity.
-2. run put_items
-3. run get_items
+1. Create a Test table, with primary key of "Dat"e and Sort key of "Index" with enough capacity.
+2. cmake . && make
+3. run put_items
+4. run get_items
 
