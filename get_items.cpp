@@ -15,9 +15,6 @@ static const char* table = "Test";
 static std::string date = "20210101";
 static const int num_indexes = 1000;
 static const int DYNAMODB_MAX_ITEMS_BATCH_GET = 100;
-static const int first_delay_ms = 50;
-static const int last_delay_ms = 100;
-static const int max_delay_ms = 2000;
 
 
 int main()
@@ -49,7 +46,6 @@ int main()
             return 1;
         }
 
-        int current_delay = 0;
         int sub_x_list_counter = 0;
         std::vector<int> x_list(num_indexes);
         std::iota(std::begin(x_list), std::end(x_list), 0);
@@ -91,29 +87,12 @@ int main()
                         for (const auto& item : var.second.GetKeys())
                             x_list.push_back(std::stoi(item.at("Index").GetS()));
                     }
-
-                    if (!current_delay) {
-                        std::vector<int> delays_ms(last_delay_ms - first_delay_ms + 1);
-                        std::iota(delays_ms.begin(), delays_ms.end(), first_delay_ms);
-                        std::uniform_int_distribution<> dis(0, std::distance(delays_ms.begin(), delays_ms.end()) - 1);
-                        std::random_device rd;
-                        std::mt19937 prng(rd());
-                        auto delay_iter = delays_ms.begin();
-                        std::advance(delay_iter, dis(prng));
-                        current_delay = *delay_iter;
-                    } else {
-                        current_delay = std::min(current_delay *2, max_delay_ms);
-                    }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(current_delay));
-                } else if (current_delay != 0) {
-                    current_delay = 0;
                 }
                 sub_x_list_counter += sub_x_list.size();
             }
         } while (x_list.size() - sub_x_list_counter > 0);
 
         auto end = std::chrono::high_resolution_clock::now();
-
         std::cout << "Done! " <<  std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<std::endl;
     }
     Aws::ShutdownAPI(options);
