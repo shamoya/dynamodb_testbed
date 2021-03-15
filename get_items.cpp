@@ -91,6 +91,7 @@ int main()
                      *  The amount of data returned can be calculated with: (100 - Unprocessed items) * 78KB.
                      */
                     std::cout << "Unexpected Unprocessed " << unprocessed.at(tableName).GetKeys().size() << std::endl;
+                    std::cout << "Capacity units used: " << result.GetResult().GetConsumedCapacity()[0].GetCapacityUnits() << std::endl;
                     for (const auto& var: unprocessed) {
                         for (const auto& item : var.second.GetKeys())
                             x_list.push_back(std::stoi(item.at("Index").GetS()));
