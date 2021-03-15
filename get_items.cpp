@@ -83,7 +83,14 @@ int main()
 
                 const Aws::Map<Aws::String, Aws::DynamoDB::Model::KeysAndAttributes> unprocessed = result.GetResult().GetUnprocessedKeys();
                 if (!unprocessed.empty()) {
-                    std::cout << "Unprocessed " << unprocessed.at(tableName).GetKeys().size() << std::endl;
+                    /*
+                     *  According to https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html
+                     *  we expect up to 16MB, in as many as 100 items to be returned in a single batch get operation.
+                     *  Here we request for: DYNAMODB_MAX_ITEMS_BATCH_GET * x_size ~= 7.8MB
+                     *  In reality we get around 3.5MB of data in a single operation.
+                     *  The amount of data returned can be calculated with: (100 - Unprocessed items) * 78KB.
+                     */
+                    std::cout << "Unexpected Unprocessed " << unprocessed.at(tableName).GetKeys().size() << std::endl;
                     for (const auto& var: unprocessed) {
                         for (const auto& item : var.second.GetKeys())
                             x_list.push_back(std::stoi(item.at("Index").GetS()));
