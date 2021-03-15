@@ -1,7 +1,7 @@
 Dynamodb testbed:
 
 This test assume a table named Test is created in AWS Dynamodb service, and that capacity units
-are to a level which will allow a batch get operation of 100 items, each of 78KB to be performed
+are set to a level which will allow a batch get operation of 100 items, each of 78KB to be performed
 without passing the capacity unit limit.
 
 According to https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchGetItem.html
@@ -14,7 +14,7 @@ It also prints the capacity units used if this was the case.
 The amount of data actaully returned can be calculated with: (100 - Unprocessed items) * 78KB.
 
 Usage:
-1. Create a Test table, with primary key of "Dat"e and Sort key of "Index" with enough capacity.
+1. Create a Test table, with primary key of "Day" and Sort key of "Index" with enough capacity.
 2. cmake . && make
 3. run put_items
 4. run get_items
