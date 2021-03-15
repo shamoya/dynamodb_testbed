@@ -19,7 +19,6 @@ static const int metadata_size = 60;
 static const int x_size = 77150;
 
 
-
 std::string random_string(int n)
 {
     std::string ran(n, ' ');
@@ -44,16 +43,16 @@ int main()
 
         Aws::DynamoDB::Model::AttributeValue name;
         name.SetS(date);
-        pir.AddItem("Date", name);
+        pir.AddItem("Day", name);
 
         Aws::DynamoDB::Model::AttributeValue index;
         index.SetS("-1");
-        pir.AddItem("XIndex", index);
+        pir.AddItem("Index", index);
 
         Aws::DynamoDB::Model::AttributeValue data;
         std::string metadata = random_string(metadata_size);
         data.SetS(metadata);
-        pir.AddItem("data", data);
+        pir.AddItem("Data", data);
 
         const Aws::DynamoDB::Model::PutItemOutcome result = dynamoClient.PutItem(pir);
         if (!result.IsSuccess()) {
@@ -67,16 +66,16 @@ int main()
 
             Aws::DynamoDB::Model::AttributeValue name;
             name.SetS(date);
-            pir.AddItem("Date", name);
+            pir.AddItem("Day", name);
 
             Aws::DynamoDB::Model::AttributeValue index;
             index.SetS(std::to_string(x));
-            pir.AddItem("XIndex", index);
+            pir.AddItem("Index", index);
 
             Aws::DynamoDB::Model::AttributeValue data;
             std::string x_data =  random_string(x_size);
             data.SetS(x_data);
-            pir.AddItem("data", data);
+            pir.AddItem("Data", data);
 
             const Aws::DynamoDB::Model::PutItemOutcome result = dynamoClient.PutItem(pir);
             if (!result.IsSuccess()) {

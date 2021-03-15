@@ -36,11 +36,11 @@ int main()
 
         Aws::DynamoDB::Model::AttributeValue name;
         name.SetS(date);
-        req.AddKey("Date", name);
+        req.AddKey("Day", name);
 
         Aws::DynamoDB::Model::AttributeValue index;
         index.SetS("-1");
-        req.AddKey("XIndex", index);
+        req.AddKey("Index", index);
 
         const Aws::DynamoDB::Model::GetItemOutcome& result = dynamoClient.GetItem(req);
 
@@ -69,10 +69,10 @@ int main()
                 Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue> xKeys;
                 Aws::DynamoDB::Model::AttributeValue name;
                 name.SetS(date);
-                xKeys.emplace(Aws::String("Date"), name);
+                xKeys.emplace(Aws::String("Day"), name);
                 Aws::DynamoDB::Model::AttributeValue index;
                 index.SetS(std::to_string(x_index));
-                xKeys.emplace(Aws::String("XIndex"), index);
+                xKeys.emplace(Aws::String("Index"), index);
                 keyAttrs.AddKeys(xKeys);
             }
 
@@ -81,7 +81,7 @@ int main()
             if (result.IsSuccess()) {
                 for(const auto& var : result.GetResult().GetResponses()) {
                     for (const auto& item : var.second)
-                        xitems[std::stoi(item.at("XIndex").GetS())] = item.at("data").GetS();
+                        xitems[std::stoi(item.at("Index").GetS())] = item.at("Data").GetS();
                 }
 
                 const Aws::Map<Aws::String, Aws::DynamoDB::Model::KeysAndAttributes> unprocessed = result.GetResult().GetUnprocessedKeys();
@@ -89,7 +89,7 @@ int main()
                     std::cout << "Unprocessed " << unprocessed.at(tableName).GetKeys().size() << std::endl;
                     for (const auto& var: unprocessed) {
                         for (const auto& item : var.second.GetKeys())
-                            x_list.push_back(std::stoi(item.at("XIndex").GetS()));
+                            x_list.push_back(std::stoi(item.at("Index").GetS()));
                     }
 
                     if (!current_delay) {
