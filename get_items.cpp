@@ -73,6 +73,7 @@ int main()
             }
 
             req.AddRequestItems(tableName, keyAttrs);
+            req.SetReturnConsumedCapacity(Aws::DynamoDB::Model::ReturnConsumedCapacity::INDEXES);
             const Aws::DynamoDB::Model::BatchGetItemOutcome& result = dynamoClient.BatchGetItem(req);
             if (result.IsSuccess()) {
                 for(const auto& var : result.GetResult().GetResponses()) {
