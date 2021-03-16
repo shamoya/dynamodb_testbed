@@ -10,7 +10,7 @@ static const char* table = "Test";
 static std::string date = "20210101";
 static const int num_indexes = 1000;
 static const int MAX_SIZE = 26;
-static const char letters[MAX_SIZE] = {
+static const unsigned char letters[MAX_SIZE] = {
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
         'r', 's', 't', 'u', 'v', 'w', 'x',
         'y', 'z'
@@ -19,9 +19,9 @@ static const int metadata_size = 60;
 static const int x_size = 77150;
 
 
-std::string random_string(int n)
+unsigned char* random_string(int n)
 {
-    std::string ran(n, ' ');
+    unsigned char *ran = new unsigned char[n + 1];
 
     for (int i = 0; i < n; i++)
         ran[i] = letters[rand() % MAX_SIZE];
@@ -50,8 +50,9 @@ int main()
         pir.AddItem("Index", index);
 
         Aws::DynamoDB::Model::AttributeValue data;
-        std::string metadata = random_string(metadata_size);
-        data.SetS(metadata);
+        unsigned char *bindata = random_string(metadata_size);
+        const Aws::Utils::ByteBuffer b1(bindata, metadata_size);
+        data.SetB(b1);
         pir.AddItem("Data", data);
 
         const Aws::DynamoDB::Model::PutItemOutcome result = dynamoClient.PutItem(pir);
@@ -73,8 +74,9 @@ int main()
             pir.AddItem("Index", index);
 
             Aws::DynamoDB::Model::AttributeValue data;
-            std::string x_data =  random_string(x_size);
-            data.SetS(x_data);
+            unsigned char *bindata = random_string(x_size);
+            const Aws::Utils::ByteBuffer b1(bindata, x_size);
+            data.SetB(b1);
             pir.AddItem("Data", data);
 
             const Aws::DynamoDB::Model::PutItemOutcome result = dynamoClient.PutItem(pir);

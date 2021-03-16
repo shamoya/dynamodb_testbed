@@ -22,7 +22,7 @@ int main()
     Aws::SDKOptions options;
     Aws::InitAPI(options);
     {
-        std::map<int, std::string> xitems;
+        std::map<int, Aws::Utils::ByteBuffer> xitems;
         const Aws::String tableName(table);
         Aws::Client::ClientConfiguration clientConfig;
         Aws::DynamoDB::DynamoDBClient dynamoClient(clientConfig);
@@ -78,7 +78,7 @@ int main()
             if (result.IsSuccess()) {
                 for(const auto& var : result.GetResult().GetResponses()) {
                     for (const auto& item : var.second)
-                        xitems[std::stoi(item.at("Index").GetS())] = item.at("Data").GetS();
+                        xitems[std::stoi(item.at("Index").GetS())] = item.at("Data").GetB();
                 }
 
                 const Aws::Map<Aws::String, Aws::DynamoDB::Model::KeysAndAttributes> unprocessed = result.GetResult().GetUnprocessedKeys();
